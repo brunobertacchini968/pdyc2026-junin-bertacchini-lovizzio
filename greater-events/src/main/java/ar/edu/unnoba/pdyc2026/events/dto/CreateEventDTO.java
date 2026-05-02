@@ -1,11 +1,18 @@
 package ar.edu.unnoba.pdyc2026.events.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public class CreateEventDTO {
 
+    @NotBlank(message = "Event name is required and cannot be blank")
     private String name;
+
+    @NotNull(message = "Event start_date is required")
     private LocalDate startDate;
+
     private String description;
 
     public CreateEventDTO() {

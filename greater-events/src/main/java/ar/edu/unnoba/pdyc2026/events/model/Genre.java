@@ -11,6 +11,13 @@ public enum Genre {
 
     @JsonCreator
     public static Genre fromString(String value) {
-        return Genre.valueOf(value.toUpperCase());
+        if (value == null) {
+            throw new IllegalArgumentException("Artist genre is required. Valid values: ROCK, TECHNO, POP, JAZZ, FOLK");
+        }
+        try {
+            return Genre.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid genre: '" + value + "'. Valid values are: ROCK, TECHNO, POP, JAZZ, FOLK");
+        }
     }
 }

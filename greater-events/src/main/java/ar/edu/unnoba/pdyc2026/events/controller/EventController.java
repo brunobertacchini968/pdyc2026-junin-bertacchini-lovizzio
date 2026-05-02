@@ -10,6 +10,7 @@ import ar.edu.unnoba.pdyc2026.events.model.Event;
 import ar.edu.unnoba.pdyc2026.events.model.EventState;
 import ar.edu.unnoba.pdyc2026.events.service.EventService;
 import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,9 @@ public class EventController {
     }
 
     @GetMapping
-    public List<EventSummaryDTO> getEvents(@RequestParam(required = false) EventState state) {
-        return eventService.findAll(state).stream()
+    public List<EventSummaryDTO> getEvents(@RequestParam(required = false) String state) {
+        EventState stateFilter = state == null ? null : EventState.fromString(state);
+        return eventService.findAll(stateFilter).stream()
                 .map(EventSummaryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -47,13 +49,13 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDetailDTO> createEvent(@RequestBody CreateEventDTO body) {
+    public ResponseEntity<EventDetailDTO> createEvent(@Valid @RequestBody CreateEventDTO body) {
         Event event = eventService.create(body.getName(), body.getDescription(), body.getStartDate());
         return ResponseEntity.status(HttpStatus.CREATED).body(EventDetailDTO.fromEntity(event));
     }
 
     @PutMapping("/{id}")
-    public EventDetailDTO updateEvent(@PathVariable Long id, @RequestBody UpdateEventDTO body) {
+    public EventDetailDTO updateEvent(@PathVariable Long id, @Valid @RequestBody UpdateEventDTO body) {
         Event event = eventService.update(id, body.getName(), body.getDescription(), body.getStartDate());
         return EventDetailDTO.fromEntity(event);
     }
@@ -65,7 +67,7 @@ public class EventController {
     }
 
     @PostMapping("/{id}/artists")
-    public EventDetailDTO addArtist(@PathVariable Long id, @RequestBody AddArtistDTO body) {
+    public EventDetailDTO addArtist(@PathVariable Long id, @Valid @RequestBody AddArtistDTO body) {
         Event event = eventService.addArtist(id, body.getArtistId());
         return EventDetailDTO.fromEntity(event);
     }
@@ -82,7 +84,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}/rescheduled")
-    public EventDetailDTO reschedule(@PathVariable Long id, @RequestBody RescheduleEventDTO body) {
+    public EventDetailDTO reschedule(@PathVariable Long id, @Valid @RequestBody RescheduleEventDTO body) {
         return EventDetailDTO.fromEntity(eventService.reschedule(id, body.getStartDate()));
     }
 

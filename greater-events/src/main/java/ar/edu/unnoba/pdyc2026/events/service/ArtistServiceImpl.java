@@ -57,6 +57,15 @@ public class ArtistServiceImpl implements ArtistService {
                     "Cannot edit artist: it has been assigned to events. You may deactivate it instead.");
         }
 
+        boolean hasValidNameUpdate = name != null && !name.isBlank();
+        boolean hasGenreUpdate = genre != null;
+        if (!hasValidNameUpdate && !hasGenreUpdate) {
+            throw new BusinessException("At least one field (name or genre) must be provided to update artist");
+        }
+        if (name != null && name.isBlank()) {
+            throw new BusinessException("Artist name cannot be blank");
+        }
+
         if (name != null && !name.isBlank()) {
             artist.setName(name);
         }

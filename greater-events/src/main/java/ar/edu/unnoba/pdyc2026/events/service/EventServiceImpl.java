@@ -61,6 +61,16 @@ public class EventServiceImpl implements EventService {
             throw new BusinessException("Only events in TENTATIVE state can be modified");
         }
 
+        boolean hasValidNameUpdate = name != null && !name.isBlank();
+        boolean hasDescriptionUpdate = description != null;
+        boolean hasStartDateUpdate = startDate != null;
+        if (!hasValidNameUpdate && !hasDescriptionUpdate && !hasStartDateUpdate) {
+            throw new BusinessException("At least one field (name, description or start_date) must be provided to update event");
+        }
+        if (name != null && name.isBlank()) {
+            throw new BusinessException("Event name cannot be blank");
+        }
+
         if (name != null && !name.isBlank()) {
             event.setName(name);
         }
