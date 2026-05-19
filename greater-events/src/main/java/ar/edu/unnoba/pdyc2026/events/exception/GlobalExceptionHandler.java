@@ -10,6 +10,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,8 +49,10 @@ public class GlobalExceptionHandler {
         var errors = ex.getBindingResult().getFieldErrors();
         String message = errors.stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .findFirst()
-                .orElse("Validation error");
+                .collect(Collectors.joining(", "));
+        if (message.isEmpty()) {
+            message = "Validation error";
+        }
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
