@@ -19,10 +19,12 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final ArtistRepository artistRepository;
+    private final NotificationService notificationService;
 
-    public EventServiceImpl(EventRepository eventRepository, ArtistRepository artistRepository) {
+    public EventServiceImpl(EventRepository eventRepository, ArtistRepository artistRepository, NotificationService notificationService) {
         this.eventRepository = eventRepository;
         this.artistRepository = artistRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -137,7 +139,9 @@ public class EventServiceImpl implements EventService {
             throw new BusinessException("Only events with a future start_date can be confirmed");
         }
         event.setState(EventState.CONFIRMED);
-        return eventRepository.save(event);
+        Event saved = eventRepository.save(event);
+        notificationService.notifyEventChange(saved, "Event confirmed: " + saved.getName());
+        return saved;
     }
 
     @Override
@@ -156,7 +160,9 @@ public class EventServiceImpl implements EventService {
 
         event.setStartDate(newStartDate);
         event.setState(EventState.RESCHEDULED);
-        return eventRepository.save(event);
+        Event saved = eventRepository.save(event);
+        notificationService.notifyEventChange(saved, "Event rescheduled: " + saved.getName() + " new date: " + saved.getStartDate());
+        return saved;
     }
 
     @Override
@@ -167,6 +173,38 @@ public class EventServiceImpl implements EventService {
             throw new BusinessException("Only CONFIRMED or RESCHEDULED events can be cancelled");
         }
         event.setState(EventState.CANCELLED);
-        return eventRepository.save(event);
+        Event saved = eventRepository.save(event);
+        notificationService.notifyEventChange(saved, "Event cancelled: " + saved.getName());
+        return saved;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Event> findPublicEvents() {
+        var states = List.of(EventState.CONFIRMED, EventState.RESCHEDULED);
+        return eventRepository.findAll().stream()
+                .filter(e -> states.contains(e.getState()) && e.getStartDate() != null && e.getStartDate().isAfter(LocalDate.now()))
+                .sorted((a, b) -> a.getStartDate().compareTo(b.getStartDate()))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Event findPublicById(Long id) {
+        Event e = findById(id);
+        if (e.getState() != EventState.CONFIRMED && e.getState() != EventState.RESCHEDULED) {
+            throw new ResourceNotFoundException("Event not found");
+        }
+        return e;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Event> findUpcomingEventsForArtist(Long artistId) {
+        return eventRepository.findDistinctByArtistsIdAndStateInAndStartDateAfterOrderByStartDateAsc(
+                artistId,
+                List.of(EventState.CONFIRMED, EventState.RESCHEDULED),
+                LocalDate.now()
+        );
     }
 }

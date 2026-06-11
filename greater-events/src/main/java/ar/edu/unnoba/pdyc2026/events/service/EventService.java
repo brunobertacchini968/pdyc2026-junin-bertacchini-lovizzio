@@ -27,4 +27,10 @@ public interface EventService {
     Event reschedule(Long id, LocalDate newStartDate);
 
     Event cancel(Long id);
+
+    List<Event> findPublicEvents();
+
+    Event findPublicById(Long id);
+
+    List<Event> findUpcomingEventsForArtist(Long artistId);
 }
