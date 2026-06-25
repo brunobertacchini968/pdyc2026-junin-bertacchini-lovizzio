@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/greater_catalog
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+rabbitmq:
+  exchange: events.exchange
+  routing-key: event.cancelled
+  queue: event.cancelled.queue

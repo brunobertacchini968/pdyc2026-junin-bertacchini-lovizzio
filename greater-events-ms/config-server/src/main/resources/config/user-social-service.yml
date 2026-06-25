@@ -1,0 +1,23 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5434/greater_users
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+keycloak:
+  server-url: http://localhost:8084
+  realm: unnoba
+  client-id: pdyc
+  client-secret: qa1iO4B4sTXmTSnySmTJUwFJUxAk4W8h
+  grant-type: client_credentials
+
+grpc:
+  server:
+    port: 9091

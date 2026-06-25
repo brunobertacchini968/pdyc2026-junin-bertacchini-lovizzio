@@ -1,0 +1,24 @@
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5435/greater_notifications
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+rabbitmq:
+  exchange: events.exchange
+  routing-key: event.cancelled
+  queue: event.cancelled.queue
+
+grpc:
+  client:
+    user-social-service:
+      address: discovery:///user-social-service
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true

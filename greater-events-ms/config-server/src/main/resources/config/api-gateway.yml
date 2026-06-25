@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+        - id: catalog-service
+          uri: lb://catalog-service
+          predicates:
+            - Path=/artists/**, /events/**, /admin/artists/**, /admin/events/**
+        - id: user-social-service
+          uri: lb://user-social-service
+          predicates:
+            - Path=/auth/**, /me/following/**, /me/favorite-events/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/me/notifications/**
