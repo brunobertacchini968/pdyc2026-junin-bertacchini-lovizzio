@@ -1,5 +1,34 @@
+server:
+  port: 8085
+
 spring:
   application:
     name: notification-service
   config:
-    import: optional:configserver:http://localhost:8888
+    import: "optional:configserver:http://localhost:8888"
+  datasource:
+    url: jdbc:postgresql://localhost:5435/greater_notifications
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8084/realms/unnoba
+          jwk-set-uri: http://localhost:8084/realms/unnoba/protocol/openid-connect/certs
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue: event-cancelled-queue
+  exchange: event-exchange
+  routing-key: event-cancelled-key

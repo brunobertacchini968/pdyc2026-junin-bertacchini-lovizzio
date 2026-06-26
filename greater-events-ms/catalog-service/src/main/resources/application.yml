@@ -1,5 +1,32 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: catalog-service
   config:
-    import: optional:configserver:http://localhost:8888
+    import: "optional:configserver:http://localhost:8888"
+  datasource:
+    url: jdbc:postgresql://localhost:5433/greater_catalog
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8084/realms/unnoba
+
+rabbitmq:
+  exchange: events.exchange
+  routing-key: event.cancelled
+  queue: event.cancelled.queue

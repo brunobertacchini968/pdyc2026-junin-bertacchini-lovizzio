@@ -1,5 +1,29 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: user-social-service
   config:
-    import: optional:configserver:http://localhost:8888
+    import: "optional:configserver:http://localhost:8888"
+  datasource:
+    url: jdbc:postgresql://localhost:5434/greater_users
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8084/realms/unnoba
+          jwk-set-uri: http://localhost:8084/realms/unnoba/protocol/openid-connect/certs
+
+keycloak:
+  server-url: http://localhost:8084
+  realm: unnoba
+  client-id: user-social-service
+  client-secret: aJMmp4onhzDp5gaq4bty9wraOpSQhyAP
