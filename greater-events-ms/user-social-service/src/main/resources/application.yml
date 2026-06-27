@@ -27,3 +27,7 @@ keycloak:
   realm: unnoba
   client-id: user-social-service
   client-secret: aJMmp4onhzDp5gaq4bty9wraOpSQhyAP
+
+grpc:
+  server:
+    port: 9091
