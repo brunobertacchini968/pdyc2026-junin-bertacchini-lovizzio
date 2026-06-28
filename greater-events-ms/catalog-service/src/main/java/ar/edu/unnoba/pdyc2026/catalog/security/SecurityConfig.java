@@ -25,9 +25,9 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/artists/**", "/events/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("admin")
-                .anyRequest().authenticated()
+                    .requestMatchers("/admin/**").hasRole("admin")
+                    .requestMatchers("/artists/**", "/events/**").permitAll()
+                    .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
