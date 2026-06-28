@@ -20,7 +20,7 @@ spring:
         - id: user-social-service
           uri: http://localhost:8081
           predicates:
-            - Path=/users/**, /social/**, /auth/**
+            - Path=/users/**, /social/**, /auth/**, /me/**
         - id: notification-service
           uri: http://localhost:8085
           predicates:

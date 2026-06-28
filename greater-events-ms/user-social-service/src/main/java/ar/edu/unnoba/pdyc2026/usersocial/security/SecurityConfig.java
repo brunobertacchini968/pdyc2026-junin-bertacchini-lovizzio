@@ -21,6 +21,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setPrincipalClaimName("preferred_username");
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(keycloakConverter);
 
         http
