@@ -17,15 +17,15 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-social-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/users/**, /social/**, /auth/**, /me/**
         - id: notification-service
           uri: http://localhost:8085
           predicates:
             - Path=/me/notifications/**
+        - id: user-social-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/users/**, /social/**, /auth/**, /me/**
         - id: catalog-service
           uri: http://localhost:8082
           predicates:
-              - Path=/admin/artists/**, /admin/events/**
+              - Path=/admin/artists/**, /events/**, /admin/events/**

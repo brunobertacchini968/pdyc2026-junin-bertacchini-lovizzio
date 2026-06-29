@@ -29,6 +29,11 @@ spring:
     password: guest
 
 rabbitmq:
-  queue: event-cancelled-queue
-  exchange: event-exchange
-  routing-key: event-cancelled-key
+  queue: event.cancelled.queue
+  exchange: events.exchange
+  routing-key: event.cancelled
+
+grpc:
+  client:
+    user-social-service:
+      negotiation-type: plaintext

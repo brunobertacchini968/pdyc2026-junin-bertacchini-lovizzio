@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@org.springframework.amqp.rabbit.annotation.EnableRabbit
 public class RabbitMQConfig {
 
     @Value("${rabbitmq.queue}")
@@ -36,6 +37,12 @@ public class RabbitMQConfig {
 
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        org.springframework.amqp.support.converter.DefaultClassMapper classMapper = new org.springframework.amqp.support.converter.DefaultClassMapper();
+        java.util.Map<String, Class<?>> idClassMapping = new java.util.HashMap<>();
+        idClassMapping.put("ar.edu.unnoba.pdyc2026.catalog.messaging.EventCancelledMessage", EventCancelledMessage.class);
+        classMapper.setIdClassMapping(idClassMapping);
+        converter.setClassMapper(classMapper);
+        return converter;
     }
 }
