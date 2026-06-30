@@ -24,8 +24,8 @@ spring:
         - id: user-social-service
           uri: http://localhost:8081
           predicates:
-            - Path=/users/**, /social/**, /auth/**, /me/**
+            - Path=/users/**, /social/**, /auth/**, /me/**, /admin/users/**
         - id: catalog-service
           uri: http://localhost:8082
           predicates:
-              - Path=/admin/artists/**, /events/**, /admin/events/**
+              - Path=/artists/**, /admin/artists/**, /events/**, /admin/events/**
