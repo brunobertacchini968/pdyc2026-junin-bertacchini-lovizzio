@@ -9,6 +9,12 @@ public class EventCancelledMessage {
 
     public EventCancelledMessage() {}
 
+    public EventCancelledMessage(Long eventId, String eventName, List<Long> artistIds) {
+        this.eventId = eventId;
+        this.eventName = eventName;
+        this.artistIds = artistIds;
+    }
+
     public Long getEventId() { return eventId; }
     public String getEventName() { return eventName; }
     public List<Long> getArtistIds() { return artistIds; }

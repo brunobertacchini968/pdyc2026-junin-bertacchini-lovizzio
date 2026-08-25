@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # ==========================================
+  # INFRASTRUCTURE SERVICES
+  # ==========================================
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.8
     command: start-dev --import-realm
@@ -22,6 +25,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - greater-events-net
 
@@ -33,6 +41,11 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d greater_catalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres-catalog-data:/var/lib/postgresql/data
     networks:
@@ -46,6 +59,11 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d greater_users"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres-users-data:/var/lib/postgresql/data
     networks:
@@ -59,8 +77,127 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d greater_notifications"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres-notifications-data:/var/lib/postgresql/data
+    networks:
+      - greater-events-net
+
+  # ==========================================
+  # SPRING CLOUD MICROSERVICES
+  # ==========================================
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/unnoba
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/unnoba/protocol/openid-connect/certs
+    networks:
+      - greater-events-net
+
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - config-server
+    networks:
+      - greater-events-net
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/unnoba
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/unnoba/protocol/openid-connect/certs
+    depends_on:
+      - config-server
+      - eureka-server
+      - keycloak
+    networks:
+      - greater-events-net
+
+  catalog-service:
+    build: ./catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-catalog:5432/greater_catalog
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/unnoba
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/unnoba/protocol/openid-connect/certs
+    depends_on:
+      postgres-catalog:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    networks:
+      - greater-events-net
+
+  user-social-service:
+    build: ./user-social-service
+    ports:
+      - "8083:8083"
+      - "9091:9091"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-users:5432/greater_users
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/unnoba
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/unnoba/protocol/openid-connect/certs
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    networks:
+      - greater-events-net
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-notifications:5432/greater_notifications
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/unnoba
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/unnoba/protocol/openid-connect/certs
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      user-social-service:
+        condition: service_started
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
     networks:
       - greater-events-net
 

@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:notifdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+rabbitmq:
+  exchange: events.exchange
+  routing-key: event.cancelled
+  queue: event.cancelled.queue
+
+grpc:
+  client:
+    user-social-service:
+      address: in-process:test
