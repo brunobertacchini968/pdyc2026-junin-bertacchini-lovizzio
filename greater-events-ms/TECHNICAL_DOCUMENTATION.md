@@ -6,7 +6,7 @@
 **Carrera:** Ingeniería en Informática / Licenciatura en Sistemas  
 **Asignatura:** Programación Distribuida y Concurrente (PDyC)  
 **Cursada:** 2026  
-**Integrantes:** Bruno Bertacchini, Franco Lovizzio (Grupo de 2 integrantes)  
+**Integrantes:** Bruno Bertacchini, Lucas Lovizzio (Grupo de 2 integrantes)  
 **Mejoras Seleccionadas:** 
 - **Opción E:** Contenerización Completa (Docker Compose)
 - **Opción F:** Calidad y Pruebas Automatizadas de Integración
