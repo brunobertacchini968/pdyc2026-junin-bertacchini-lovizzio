@@ -113,21 +113,20 @@ Se actualizó `docker-compose.yml` para orquestar los 11 contenedores del ecosis
 * **Healthchecks:** Configurados mediante `pg_isready` y `rabbitmq-diagnostics ping` para garantizar que las bases de datos y el broker estén 100% operativos antes de iniciar los microservicios (`depends_on` con `condition: service_healthy`).
 * **Red:** Red tipo puente (`bridge`) aislada llamada `greater-events-net`.
 
-### 5.2 Opción F – Calidad y Pruebas Automatizadas de Integración
-Se construyó una suite de pruebas de integración basada en **JUnit 5**, **Spring Boot Test (`@SpringBootTest`)** y la base de datos en memoria **H2**:
+### 5.2 Opción F – Calidad y Pruebas Automatizadas (Unitarias y de Integración)
+Se construyó una suite integral de pruebas automatizadas combinando **Unit Tests puros (JUnit 5 + Mockito)** para la lógica de negocio y **Integration Tests (@SpringBootTest + H2)** para la persistencia y ciclo de vida de los microservicios (40 pruebas automatizadas en total):
 
-1. **`CatalogServiceIntegrationTest`** (En `catalog-service`):
-   * Verificación del ABM de Artistas y filtrado por género.
-   * Validación del ciclo de vida del Evento: `TENTATIVE` -> `CONFIRMED` -> `CANCELLED`.
-   * Verificación del envío del mensaje de cancelación a RabbitMQ mediante mocking de `RabbitTemplate`.
-   * Comprobación de regla de negocio: Desactivación de artista en lugar de borrado físico cuando tiene eventos asignados.
-2. **`UserSocialServiceIntegrationTest`** (En `user-social-service`):
-   * Pruebas de seguimiento de artistas y agregado a eventos favoritos.
-   * Validación de reglas: Solo se pueden marcar como favoritos eventos en estado `CONFIRMED` o `RESCHEDULED` con fecha futura.
-3. **`NotificationServiceIntegrationTest`** (En `notification-service`):
-   * Procesamiento end-to-end de `EventCancelledMessage`.
-   * Verificación de la desduplicación de destinatarios entre seguidores del artista y usuarios con el evento en favoritos.
-   * Marcado de notificaciones como leídas.
+1. **Pruebas Unitarias Aisladas (Mockito puro, sin sobrecarga de contexto Spring):**
+   * **`ArtistServiceTest`** (8 tests): Validación de nombres y géneros, listado y filtrado, prohibición de edición de artistas con eventos asignados, borrado físico vs desactivación lógica (`active = false`).
+   * **`EventServiceTest`** (10 tests): Ciclo de vida estricto de eventos, validación de fechas, impedimento de mutaciones en estados no tentativos, validación de artistas inactivos, reprogramación (`reschedule`), cancelación y verificación de la emisión a RabbitMQ.
+   * **`UserServiceTest`** (8 tests): Seguimiento y desuscripción de artistas (`follow`/`unfollow`), guardado y desmarcado de favoritos con validación de estados permitidos (`CONFIRMED`/`RESCHEDULED`) y fechas futuras, manejo de fallos Feign.
+   * **`NotificationServiceTest`** (4 tests): Aislamiento y seguridad por usuario (lanzamiento de `AccessDeniedException` si un usuario intenta alterar notificaciones ajenas).
+   * **`EventCancelledListenerTest`** (2 tests): Manejo del mensaje AMQP, consulta gRPC y desduplicación estricta de usuarios afectados.
+
+2. **Pruebas de Integración con Spring Boot y H2 en Memoria:**
+   * **`CatalogServiceIntegrationTest`** (5 tests): Integración JPA, base de datos H2 en memoria y flujo transaccional.
+   * **`UserSocialServiceIntegrationTest`** (2 tests): Integración de colecciones JPA (`user_followed_artists`, `user_favorite_events`).
+   * **`NotificationServiceIntegrationTest`** (1 test): Integración end-to-end de recepción de mensaje, resolución gRPC y persistencia.
 
 *Resultado:* Ejecución exitosa en Maven (`mvn clean test`) con **100% de éxito en todos los módulos**.
 
