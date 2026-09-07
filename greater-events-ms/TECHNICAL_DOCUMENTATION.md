@@ -4,10 +4,11 @@
 
 **Universidad Nacional del Noroeste de la Provincia de Buenos Aires (UNNOBA)**  
 **Carrera:** Ingeniería en Informática
-**Asignatura:** Programación Distribuida y Concurrente (PDyC)  
+**Asignatura:** Programación Distribuida y Concurrente
 **Cursada:** 2026  
 **Integrantes:** Bruno Bertacchini, Lucas Lovizzio
-**Mejoras Seleccionadas:** 
+
+**Mejoras Seleccionadas:**
 - **Opción E:** Contenerización Completa (Docker Compose)
 - **Opción F:** Calidad y Pruebas Automatizadas de Integración
 
@@ -17,7 +18,7 @@
 
 El presente documento técnico describe la arquitectura, diseño e implementación de la plataforma **Greater Events**, un sistema distribuido de microservicios concebido para la gestión de catálogo de eventos culturales/musicales, interacción social de usuarios (seguimiento de artistas y favoritos), gestión centralizada de identidad y notificaciones en tiempo real ante eventualidades (cancelación de eventos).
 
-A partir de la base desarrollada durante la cursada, el grupo de 2 integrantes ha evolucionado el sistema mediante dos mejoras principales:
+A partir de la base desarrollada durante la cursada, se han seleccionado las siguientes dos mejoras:
 1. **Opción E (Contenerización Total):** Empaquetado de los 6 microservicios Spring Boot mediante Dockerfiles optimizados y su orquestación integral en `docker-compose.yml` junto con la infraestructura subyacente (PostgreSQLs, Keycloak, RabbitMQ).
 2. **Opción F (Calidad / Pruebas Automatizadas):** Diseño y ejecución de una suite completa de pruebas automatizadas de integración (`@SpringBootTest`) utilizando base de datos en memoria (H2) y mocks de mensajería/gRPC, verificando la lógica de negocio, reglas de dominio y resiliencia de servicios.
 
@@ -170,6 +171,4 @@ docker compose ps
 
 ## 7. CONCLUSIONES Y TRABAJO FUTURO
 
-La arquitectura lograda cumple rigurosamente con los requisitos de un sistema distribuido moderno, tolerante a fallos, desacoplado y de alto rendimiento. Como líneas de trabajo futuro se propone:
-1. Implementar observabilidad distribuida con Spring Boot Actuator, Prometheus y Grafana (Opción D).
-2. Incorporar Circuit Breakers con Resilience4j en las llamadas Feign para degradación elegante de servicio (Opción C).
+La arquitectura lograda cumple rigurosamente con los requisitos de un sistema distribuido moderno, tolerante a fallos, desacoplado y de alto rendimiento.
