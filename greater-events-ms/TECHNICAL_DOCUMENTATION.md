@@ -3,10 +3,10 @@
 ### Sistema de Gestión de Eventos Masivos y Red Social ("Greater Events Microservices")
 
 **Universidad Nacional del Noroeste de la Provincia de Buenos Aires (UNNOBA)**  
-**Carrera:** Ingeniería en Informática / Licenciatura en Sistemas  
+**Carrera:** Ingeniería en Informática
 **Asignatura:** Programación Distribuida y Concurrente (PDyC)  
 **Cursada:** 2026  
-**Integrantes:** Bruno Bertacchini, Lucas Lovizzio (Grupo de 2 integrantes)  
+**Integrantes:** Bruno Bertacchini, Lucas Lovizzio
 **Mejoras Seleccionadas:** 
 - **Opción E:** Contenerización Completa (Docker Compose)
 - **Opción F:** Calidad y Pruebas Automatizadas de Integración
