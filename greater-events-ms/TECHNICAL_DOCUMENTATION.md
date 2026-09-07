@@ -168,20 +168,7 @@ docker compose ps
 
 ---
 
-## 7. PREPARACIÓN PARA LA DEFENSA ORAL (20 MINUTOS)
-
-### Preguntas Típicas de la Mesa Examinadora y Respuestas Modelo
-
-1. **¿Por qué utilizaron gRPC entre Notification Service y User Social Service en lugar de REST/Feign?**
-   * *Respuesta:* La consulta de seguidores y usuarios que marcaron evento favorito ocurre durante el procesamiento de un evento en tiempo real. gRPC utiliza HTTP/2 multiplexado y serialización binaria (Protobuf), lo que reduce drásticamente el tamaño del payload y la latencia en comparación con JSON sobre HTTP/1.1.
-2. **¿Cómo garantizan la consistencia eventual cuando se cancela un evento?**
-   * *Respuesta:* Aplicamos el patrón Event-Driven. `catalog-service` actualiza su estado local en su transacción de base de datos y publica un mensaje a RabbitMQ. `notification-service` escucha la cola y procesa las notificaciones de manera asíncrona. Si el servicio de notificaciones está temporalmente caído, las notificaciones permanecen seguras en la cola persistente de RabbitMQ.
-3. **¿Cómo funciona la autenticación distribuida a través del Gateway?**
-   * *Respuesta:* El usuario obtiene su token JWT en Keycloak (`/realms/unnoba`). Luego envía cada petición al Gateway con el encabezado `Authorization: Bearer <token>`. El Gateway utiliza el filtro `TokenRelay` para propagar de manera transparente este token a los microservicios downstream, los cuales validan la firma con la clave pública de Keycloak (`jwk-set-uri`).
-
----
-
-## 8. CONCLUSIONES Y TRABAJO FUTURO
+## 7. CONCLUSIONES Y TRABAJO FUTURO
 
 La arquitectura lograda cumple rigurosamente con los requisitos de un sistema distribuido moderno, tolerante a fallos, desacoplado y de alto rendimiento. Como líneas de trabajo futuro se propone:
 1. Implementar observabilidad distribuida con Spring Boot Actuator, Prometheus y Grafana (Opción D).
