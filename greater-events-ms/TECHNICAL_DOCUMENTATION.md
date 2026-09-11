@@ -6,10 +6,10 @@
 
 **Institución:** Universidad Nacional del Noroeste de la Provincia de Buenos Aires (UNNOBA)  
 **Unidad Académica:** Escuela de Tecnología  
-**Carrera:** Ingeniería en Informática / Licenciatura en Sistemas  
+**Carrera:** Ingeniería en Informática  
 **Asignatura:** Programación Distribuida y Concurrente (PDyC)  
 **Ciclo Lectivo:** Cursada 2026  
-**Integrantes:** Bruno Bertacchini, Franco Lovizzio (Grupo de 2 integrantes)  
+**Integrantes:** Bruno Bertacchini, Lucas Lovizzio  
 **Mejoras Seleccionadas:**
 * **Opción E:** Contenerización Completa y Orquestación (Docker Compose)
 * **Opción F:** Calidad y Pruebas Automatizadas (Unitarias y de Integración con Mockito, JUnit 5 y H2)
