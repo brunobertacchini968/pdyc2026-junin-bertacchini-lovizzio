@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documento Técnico de Arquitectura - Greater Events Microservices</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+  @media print {
+    body {
+      font-size: 10.5pt;
+      line-height: 1.5;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+    table, pre, blockquote {
+      page-break-inside: avoid;
+    }
+    .no-print {
+      display: none;
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a202c;
+    background-color: #ffffff;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 900px;
+    padding: 30px 20px;
+  }
+  .header-card {
+    border-bottom: 3px solid #2b6cb0;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+  }
+  .header-card h1 {
+    color: #1a365d;
+    font-size: 22pt;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+  }
+  .header-card h2 {
+    color: #2b6cb0;
+    font-size: 14pt;
+    margin: 0 0 16px 0;
+    font-weight: 600;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 10pt;
+  }
+  .meta-item strong {
+    color: #2d3748;
+  }
+  h2 {
+    color: #2b6cb0;
+    font-size: 15pt;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+  h3 {
+    color: #2d3748;
+    font-size: 12pt;
+    margin-top: 18px;
+    margin-bottom: 8px;
+  }
+  h4 {
+    color: #4a5568;
+    font-size: 11pt;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  p, li {
+    font-size: 10.5pt;
+    color: #2d3748;
+  }
+  ul, ol {
+    margin-top: 6px;
+    margin-bottom: 12px;
+    padding-left: 24px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 9.5pt;
+  }
+  th, td {
+    border: 1px solid #cbd5e0;
+    padding: 7px 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #edf2f7;
+    color: #2d3748;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #f7fafc;
+  }
+  pre {
+    background-color: #1a202c;
+    color: #edf2f7;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 9pt;
+    overflow-x: auto;
+    line-height: 1.45;
+    margin: 12px 0;
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #edf2f7;
+    color: #c53030;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 9.5pt;
+  }
+  pre code {
+    background-color: transparent;
+    color: #edf2f7;
+    padding: 0;
+  }
+  blockquote {
+    border-left: 4px solid #3182ce;
+    background: #ebf8ff;
+    margin: 14px 0;
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+  }
+  blockquote p {
+    margin: 0;
+    color: #2b6cb0;
+  }
+  .ascii-diagram {
+    background-color: #f7fafc;
+    color: #2d3748;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 14px;
+    font-family: monospace;
+    font-size: 8.5pt;
+    white-space: pre;
+    line-height: 1.25;
+    margin: 14px 0;
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 8pt;
+    font-weight: 600;
+    border-radius: 12px;
+    background: #e2e8f0;
+    color: #4a5568;
+  }
+  .pill-green { background: #c6f6d5; color: #22543d; }
+  .pill-blue { background: #bee3f8; color: #2a4365; }
+</style>
+</head>
+<body>
+
+<div class="header-card">
+  <h1>DOCUMENTO TÉCNICO DE ARQUITECTURA Y DISEÑO</h1>
+  <h2>TRABAJO FINAL - PROGRAMACIÓN DISTRIBUIDA Y CONCURRENTE (PDyC 2026)</h2>
+  <div class="meta-grid">
+    <div class="meta-item"><strong>Institución:</strong> Universidad Nacional del Noroeste de la Prov. de Bs. As. (UNNOBA)</div>
+    <div class="meta-item"><strong>Unidad Académica:</strong> Escuela de Tecnología</div>
+    <div class="meta-item"><strong>Carrera:</strong> Ing. en Informática</div>
+    <div class="meta-item"><strong>Asignatura:</strong> Programación Distribuida y Concurrente (PDyC)</div>
+    <div class="meta-item"><strong>Modalidad:</strong> Individual (Alumno: Bruno Bertacchini)</div>
+    <div class="meta-item"><strong>Mejora Seleccionada:</strong> <span class="pill pill-green">Opción F – Calidad</span> (Testing Automatizado)</div>
+  </div>
+</div>
+
+<h2>1. INTRODUCCIÓN Y ALCANCE DEL SISTEMA</h2>
+
+<h3>1.1 Contexto y Problemática Distribuida</h3>
+<p>
+Los sistemas modernos de catálogo de espectáculos masivos y redes sociales asociadas enfrentan desafíos críticos de concurrencia, disponibilidad, escalabilidad y consistencia de datos. En las arquitecturas monolíticas tradicionales, los picos de demanda generados por anuncios de venta de entradas o cancelaciones masivas degradan el rendimiento general del sistema, produciendo bloqueos en bases de datos compartidas y acoplando dominios disímiles como la gestión administrativa del catálogo, las interacciones sociales de los usuarios y el despacho de notificaciones.
+</p>
+<p>
+<strong>Greater Events Microservices</strong> es una plataforma distribuida concebida para resolver esta problemática, desacoplando los dominios funcionales en microservicios autónomos que se comunican mediante protocolos especializados: HTTP/REST sincrónico, mensajería asíncrona AMQP sobre RabbitMQ y llamadas remotas binarias de alta velocidad con gRPC sobre HTTP/2.
+</p>
+
+<h3>1.2 Requerimientos del Sistema</h3>
+<h4>Requerimientos Funcionales:</h4>
+<ul>
+  <li><strong>Catálogo de Artistas y Eventos:</strong> Alta, modificación, control de ciclo de vida del evento (<code>TENTATIVE</code>, <code>CONFIRMED</code>, <code>RESCHEDULED</code>, <code>CANCELLED</code>), asignación y desvinculación de artistas.</li>
+  <li><strong>Interacción Social:</strong> Capacidad de los usuarios autenticados de seguir/dejar de seguir artistas, guardar eventos como favoritos y consultar la cartelera de sus artistas seguidos.</li>
+  <li><strong>Identidad y Control de Acceso:</strong> Autenticación centralizada con protocolo OpenID Connect / OAuth2 sobre Keycloak y control de acceso basado en roles (<code>ROLE_admin</code> para la gestión administrativa).</li>
+  <li><strong>Notificaciones Automatizadas:</strong> Despacho automatizado, desacoplado y confiable de notificaciones a todos los usuarios interesados ante la cancelación de un evento musical.</li>
+</ul>
+
+<h4>Atributos de Calidad Distribuida (No Funcionales):</h4>
+<ul>
+  <li><strong>Desacoplamiento Temporal:</strong> La cancelación de un evento no bloquea el hilo de ejecución esperando notificar a miles de usuarios.</li>
+  <li><strong>Aislamiento de Fallos y Datos (<em>Database per Service</em>):</strong> La indisponibilidad de una base de datos o servicio no compromete la operatividad de los demás módulos.</li>
+  <li><strong>Baja Latencia Inter-Servicio:</strong> Consultas internas de alto volumen se resuelven con protocolos binarios de alta eficiencia (gRPC sobre HTTP/2).</li>
+  <li><strong>Portabilidad y Despliegue:</strong> Infraestructura y servicios reproducibles en cualquier entorno mediante contenedores Docker y Docker Compose.</li>
+  <li><strong>Calidad y Verificabilidad Rigurosa:</strong> Cobertura de 42 pruebas automatizadas que garantizan la solidez de las reglas de negocio y contratos de integración.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>2. ARQUITECTURA GENERAL Y TOPOLOGÍA DEL SISTEMA</h2>
+
+<p>
+El sistema implementa el estilo arquitectónico de microservicios sobre la pila tecnológica <strong>Spring Cloud 2024.0.1</strong> y <strong>Spring Boot 3.4.5</strong>, ejecutada sobre <strong>Java 17</strong>.
+</p>
+
+<h3>2.1 Diagrama de Arquitectura y Comunicación Global</h3>
+
+<div class="ascii-diagram">
+                                      +-------------------------------+
+                                      |         Eureka Server         |
+                                      |     (Service Discovery 8761)  |
+                                      +---------------+---------------+
+                                                      ^
+                                                      | Heartbeat & Registro
++--------------------+  JWT Bearer   +----------------+---------------+
+| Cliente Web / REST | ------------> |          API Gateway           |
++--------------------+               |   (Spring Cloud Gateway 8080)  |
+                                     +----------------+---------------+
+                                                      |
+                  +-----------------------------------+-----------------------------------+
+                  | (HTTP REST + TokenRelay)          | (HTTP REST + TokenRelay)          | (HTTP REST + TokenRelay)
+                  v                                   v                                   v
+    +---------------------------+       +---------------------------+       +---------------------------+
+    |      catalog-service      |       |    user-social-service    |       |   notification-service    |
+    |        (Port 8082)        |       |    (8083 REST / 9091 gRPC)|       |        (Port 8085)        |
+    +-------------+-------------+       +-------------+-------------+       +-------------+-------------+
+                  |                                   ^                                   ^
+                  | 1. Publica Evento                 |                                   |
+                  |    AMQP                           | 3. Consulta gRPC                  | 2. Consume Evento
+                  v                                   |    (Followers / Favoriters)       |    AMQP
+         +-----------------+                          +-----------------------------------+
+         |    RabbitMQ     | -------------------------------------------------------------+
+         | (Topic Exchange)|
+         +-----------------+
+
+                  |                                   |                                   |
+                  v                                   v                                   v
+         +-----------------+                 +-----------------+                 +-----------------+
+         | greater_catalog |                 |  greater_users  |                 |  greater_notif  |
+         | (PostgreSQL 16) |                 | (PostgreSQL 16) |                 | (PostgreSQL 16) |
+         |   (Port 5433)   |                 |   (Port 5434)   |                 |   (Port 5435)   |
+         +-----------------+                 +-----------------+                 +-----------------+
+</div>
+
+<h3>2.2 Inventario de Componentes y Puertos</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Módulo / Contenedor</th>
+      <th>Puerto Host</th>
+      <th>Puerto Cont.</th>
+      <th>Protocolo</th>
+      <th>Responsabilidad Técnica</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>api-gateway</strong></td>
+      <td>8080</td>
+      <td>8080</td>
+      <td>HTTP/1.1 (WebFlux)</td>
+      <td>Punto de entrada único, enrutamiento dinámico, retransmisión de tokens JWT (<code>TokenRelay</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>eureka-server</strong></td>
+      <td>8761</td>
+      <td>8761</td>
+      <td>HTTP/1.1</td>
+      <td>Registro y catálogo dinámico de instancias vivas (<em>Service Discovery</em>).</td>
+    </tr>
+    <tr>
+      <td><strong>config-server</strong></td>
+      <td>8888</td>
+      <td>8888</td>
+      <td>HTTP/1.1</td>
+      <td>Servidor de configuración centralizada nativa (<code>classpath:/config</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>catalog-service</strong></td>
+      <td>8082</td>
+      <td>8082</td>
+      <td>HTTP/1.1 (MVC)</td>
+      <td>Catálogo de artistas y eventos. Publicador de eventos AMQP.</td>
+    </tr>
+    <tr>
+      <td><strong>user-social-service</strong></td>
+      <td>8083</td>
+      <td>8083</td>
+      <td>HTTP/1.1 (MVC)</td>
+      <td>Seguimiento de artistas, eventos favoritos y administración de Keycloak.</td>
+    </tr>
+    <tr>
+      <td><strong>user-social-service (gRPC)</strong></td>
+      <td>9091</td>
+      <td>9091</td>
+      <td>gRPC sobre HTTP/2</td>
+      <td>Servidor RPC binario de alta velocidad para consultas internas de relaciones sociales.</td>
+    </tr>
+    <tr>
+      <td><strong>notification-service</strong></td>
+      <td>8085</td>
+      <td>8085</td>
+      <td>HTTP/1.1 (MVC)</td>
+      <td>Consumidor AMQP, cliente gRPC y consulta de notificaciones de usuario.</td>
+    </tr>
+    <tr>
+      <td><strong>Keycloak IAM</strong></td>
+      <td>8084</td>
+      <td>8080</td>
+      <td>HTTP/1.1</td>
+      <td>Identity Provider OAuth2 / OpenID Connect (Realm <code>unnoba</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>RabbitMQ Broker</strong></td>
+      <td>5672 / 15672</td>
+      <td>5672 / 15672</td>
+      <td>AMQP 0-9-1 / HTTP</td>
+      <td>Broker de mensajería orientada a eventos y consola de administración web.</td>
+    </tr>
+    <tr>
+      <td><strong>PostgreSQL Catalog</strong></td>
+      <td>5433</td>
+      <td>5432</td>
+      <td>PostgreSQL Wire</td>
+      <td>Base de datos relacional de catálogo (<code>greater_catalog</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>PostgreSQL Users</strong></td>
+      <td>5434</td>
+      <td>5432</td>
+      <td>PostgreSQL Wire</td>
+      <td>Base de datos relacional social y referencias de usuarios (<code>greater_users</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>PostgreSQL Notifications</strong></td>
+      <td>5435</td>
+      <td>5432</td>
+      <td>PostgreSQL Wire</td>
+      <td>Base de datos relacional de notificaciones (<code>greater_notifications</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>3. DECISIONES DE DISEÑO Y PATRONES DISTRIBUIDOS</h2>
+
+<h3>3.1 Patrón <em>Database per Service</em></h3>
+<p>
+Compartir una base de datos única introduce un único punto de fallo (SPOF), genera cuellos de botella de concurrencia y acopla los esquemas de persistencia. En <strong>Greater Events</strong>, cada microservicio es dueño exclusivo de su esquema físico en PostgreSQL.
+</p>
+<p>
+<strong>Manejo de relaciones cruzadas sin JOINs distribuidos:</strong> <code>user-social-service</code> no guarda llaves foráneas hacia las tablas de catálogo; persiste identificadores numéricos (<code>Set&lt;Long&gt; followedArtists</code>, <code>Set&lt;Long&gt; favoriteEvents</code>). Para renderizar vistas enriquecidas con nombres y fechas, utiliza <strong>OpenFeign</strong> para consultar sincrónicamente al <code>catalog-service</code> y componer los DTOs en memoria.
+</p>
+
+<h3>3.2 Patrón <em>API Gateway</em> y Seguridad con <em>Token Relay</em></h3>
+<p>
+Los clientes externos solo acceden a través del Gateway (puerto 8080). El Gateway aplica el filtro <strong><code>TokenRelay</code></strong>, retransmitiendo el encabezado <code>Authorization: Bearer &lt;JWT&gt;</code> hacia los microservicios subyacentes. Cada microservicio actúa como un <strong>OAuth2 Resource Server</strong> que valida la firma criptográfica RSA contra el endpoint JWKS de Keycloak (<code>jwk-set-uri</code>) y extrae los roles mediante <code>KeycloakJwtGrantedAuthoritiesConverter</code> (ej. <code>ROLE_admin</code>).
+</p>
+
+<h3>3.3 Arquitectura Orientada a Eventos con RabbitMQ</h3>
+<p>
+Al cancelar un evento en <code>catalog-service</code>, se emite un mensaje a la Topic Exchange <code>events.exchange</code> con routing key <code>event.cancelled</code>. La cola <code>event.cancelled.queue</code> es durable (<code>durable = true</code>). Si <code>notification-service</code> está temporalmente caído, los mensajes se retienen de forma segura en RabbitMQ y se consumen automáticamente cuando el servicio se recupera, garantizando <strong>consistencia eventual</strong>.
+</p>
+
+<h3>3.4 RPC Binario de Alto Rendimiento (gRPC sobre HTTP/2)</h3>
+<p>
+Para recuperar en milisegundos los miles de usuarios que siguen a un artista o marcaron un evento favorito, <code>notification-service</code> consulta al <code>user-social-service</code> vía <strong>gRPC</strong> (puerto 9091). Gracias a HTTP/2 multiplexado y la serialización binaria con <strong>Protocol Buffers</strong>, el tamaño del payload y la latencia de red se reducen drásticamente en comparación con REST/JSON.
+</p>
+
+<h2>4. MODELO DE DATOS Y REGLAS DE NEGOCIO</h2>
+<ul>
+  <li><strong>Ciclo de Vida de Eventos:</strong> Se inician en <code>TENTATIVE</code> (único estado que admite modificaciones o borrado). Pasan a <code>CONFIRMED</code> únicamente si su fecha es estrictamente futura. Pueden reprogramarse a <code>RESCHEDULED</code> (exigiendo nueva fecha futura) o cancelarse a <code>CANCELLED</code> (disparando el evento AMQP).</li>
+  <li><strong>Inmutabilidad Histórica de Artistas:</strong> Un artista con eventos asociados no puede editarse ni eliminarse físicamente para no corromper registros históricos; se aplica borrado lógico (<code>active = false</code>).</li>
+  <li><strong>Regla de Favoritos:</strong> Solo pueden guardarse como favoritos eventos en estado <code>CONFIRMED</code> o <code>RESCHEDULED</code> con fecha futura.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2>5. EVOLUCIÓN DEL SISTEMA: OPCIÓN F – CALIDAD Y PRUEBAS AUTOMATIZADAS</h2>
+
+<p>
+Como mejora de evolución individual, se diseñó e implementó una <strong>estrategia de calidad integral basada en la Pirámide de Pruebas</strong>, alcanzando <strong>42 pruebas automatizadas</strong> que garantizan el correcto funcionamiento del sistema sin depender de infraestructura pesada.
+</p>
+
+<h3>5.1 Justificación Teórica: Tests Unitarios Puros vs. Tests de Integración</h3>
+<p>
+En microservicios, depender únicamente de pruebas manuales o de tests con <code>@SpringBootTest</code> introduce dos desventajas críticas:
+</p>
+<ol>
+  <li><strong>Lentitud:</strong> Levantar Spring Boot, escanear componentes e inicializar conexiones tarda varios segundos por clase.</li>
+  <li><strong>Imposibilidad de simular fallos:</strong> Probar cómo responde el sistema si un servicio externo cae (ej. Feign con timeout o error 500) es difícil con servicios reales.</li>
+</ol>
+<p>
+Por eso implementamos una arquitectura en dos capas:
+</p>
+<ul>
+  <li><strong>34 Tests Unitarios Puros (JUnit 5 + Mockito):</strong> Corren en memoria pura de la JVM en menos de 200 milisegundos. Aíslan la clase bajo prueba y reemplazan repositorios, clientes Feign, stubs gRPC y RabbitTemplate por Mocks programables.</li>
+  <li><strong>8 Tests de Integración (Spring Boot + H2 en memoria):</strong> Ejecutan transacciones SQL reales, verifican mapeos Hibernate y validan persistencia sin requerir bases de datos PostgreSQL externas.</li>
+</ul>
+
+<h3>5.2 Desglose Exhaustivo de las 42 Pruebas Automatizadas</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Microservicio</th>
+      <th>Clase de Prueba</th>
+      <th>Tipo</th>
+      <th>Tests</th>
+      <th>Aspectos y Reglas de Negocio Verificadas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><strong>catalog-service</strong><br>(25 tests)</td>
+      <td><code>ArtistServiceTest</code></td>
+      <td>Unitario (Mockito)</td>
+      <td>9</td>
+      <td>Creación válida, validación de nombre/género nulo (<code>BusinessException</code>), búsqueda 404, filtrado, inmutabilidad de artistas con eventos, borrado físico vs. lógico (<code>active = false</code>).</td>
+    </tr>
+    <tr>
+      <td><code>EventServiceTest</code></td>
+      <td>Unitario (Mockito)</td>
+      <td>11</td>
+      <td>Creación tentativa, bloqueo de edición en no-tentativo, rechazo de artistas inactivos, confirmación con fecha futura vs. pasada, reprogramación, cancelación y verificación AMQP con <code>verify(rabbitTemplate)</code>.</td>
+    </tr>
+    <tr>
+      <td><code>CatalogServiceIntegrationTest</code></td>
+      <td>Integración (H2)</td>
+      <td>5</td>
+      <td>Persistencia relacional JPA en H2, transacciones reales, rollback, unión Many-to-Many entre eventos y artistas.</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>user-social-service</strong><br>(10 tests)</td>
+      <td><code>UserServiceTest</code></td>
+      <td>Unitario (Mockito)</td>
+      <td>8</td>
+      <td>Seguir artista activo con mock de Feign, captura de fallos de catálogo (404), bloqueo a artistas inactivos, unfollow no seguido, validación estricta de favoritos (solo futuros confirmados).</td>
+    </tr>
+    <tr>
+      <td><code>UserSocialServiceIntegrationTest</code></td>
+      <td>Integración (H2)</td>
+      <td>2</td>
+      <td>Persistencia de colecciones elementales JPA (<code>@ElementCollection</code> en <code>user_followed_artists</code> y <code>user_favorite_events</code>).</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>notification-service</strong><br>(7 tests)</td>
+      <td><code>NotificationServiceTest</code></td>
+      <td>Unitario (Mockito)</td>
+      <td>4</td>
+      <td>Listado de leídas/no leídas, marcado como leída, <strong>seguridad y aislamiento</strong> (lanza <code>AccessDeniedException</code> si se altera notificación ajena).</td>
+    </tr>
+    <tr>
+      <td><code>EventCancelledListenerTest</code></td>
+      <td>Unitario (Mockito)</td>
+      <td>2</td>
+      <td><strong>Desduplicación estricta</strong> mediante <code>ArgumentCaptor</code> para evitar notificaciones duplicadas ante seguidores/favoritos cruzados; resiliencia ante listas nulas de artistas.</td>
+    </tr>
+    <tr>
+      <td><code>NotificationServiceIntegrationTest</code></td>
+      <td>Integración (H2)</td>
+      <td>1</td>
+      <td>Flujo end-to-end de consumo AMQP, resolución gRPC simulada y persistencia de notificaciones en H2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.3 Resolución de Compatibilidad con Java Moderno</h3>
+<p>
+Al ejecutar en entornos con Java 25, ByteBuddy requiere autorización explícita para instrumentar código dinámicamente en tiempo de ejecución. Se parametrizó Maven pasando <code>-Dnet.bytebuddy.experimental=true</code>, garantizando una ejecución limpia de Mockito sin advertencias del ClassLoader.
+</p>
+
+<div class="page-break"></div>
+
+<h2>6. INFRAESTRUCTURA Y GUÍA DE DESPLIEGUE</h2>
+<p>
+Para satisfacer el requisito de <em>"Despliegue funcional de todos los servicios"</em>, se configuró la orquestación completa en <strong>Docker Compose</strong> (11 contenedores) con Dockerfiles basados en <code>eclipse-temurin:17-jre</code> (<200MB por imagen) y sincronización con healthchecks activos (<code>pg_isready</code> y <code>rabbitmq-diagnostics ping</code>).
+</p>
+
+<pre><code># 1. Ejecutar las 42 pruebas automatizadas
+mvn clean test -DargLine="-Dnet.bytebuddy.experimental=true"
+
+# 2. Compilar paquetes JAR
+mvn clean package -DskipTests
+
+# 3. Desplegar todo el ecosistema con Docker Compose
+docker compose up --build -d
+
+# 4. Verificar contenedores
+docker compose ps</code></pre>
+
+<h2>7. CONCLUSIÓN</h2>
+<p>
+La plataforma <strong>Greater Events Microservices</strong> satisface rigurosamente los principios de diseño de sistemas distribuidos modernos. La incorporación de la <strong>Opción F (Estrategia Integral de Pruebas Automatizadas)</strong> aporta un estándar profesional de ingeniería de software, respaldado por una suite reproducible de 42 pruebas que garantizan la robustez de la solución presentada.
+</p>
+
+</body>
+</html>
