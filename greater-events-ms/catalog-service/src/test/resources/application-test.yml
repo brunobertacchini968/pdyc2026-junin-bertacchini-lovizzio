@@ -28,3 +28,7 @@ rabbitmq:
   exchange: events.exchange
   routing-key: event.cancelled
   queue: event.cancelled.queue
+
+grpc:
+  server:
+    port: 0
