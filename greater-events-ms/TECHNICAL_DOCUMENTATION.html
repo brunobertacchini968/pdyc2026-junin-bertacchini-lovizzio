@@ -500,7 +500,7 @@ Al ejecutar en entornos con Java 25, ByteBuddy requiere autorización explícita
 
 <h2>6. INFRAESTRUCTURA Y GUÍA DE DESPLIEGUE</h2>
 <p>
-Para satisfacer el requisito de <em>"Despliegue funcional de todos los servicios"</em>, se configuró la orquestación completa en <strong>Docker Compose</strong> (11 contenedores) con Dockerfiles basados en <code>eclipse-temurin:17-jre</code> (<200MB por imagen) y sincronización con healthchecks activos (<code>pg_isready</code> y <code>rabbitmq-diagnostics ping</code>).
+Para satisfacer el requisito de <em>"Despliegue funcional de todos los servicios"</em>, se configuró la orquestación de la infraestructura en <strong>Docker Compose</strong> (5 contenedores).
 </p>
 
 <pre><code># 1. Ejecutar las 42 pruebas automatizadas
@@ -509,8 +509,13 @@ mvn clean test -DargLine="-Dnet.bytebuddy.experimental=true"
 # 2. Compilar paquetes JAR
 mvn clean package -DskipTests
 
-# 3. Desplegar todo el ecosistema con Docker Compose
-docker compose up --build -d
+# 3. Desplegar todo el ecosistema con Docker Compose y mvn
+docker compose up --build -dmvn spring-boot:run -pl eureka-server
+mvn spring-boot:run -pl catalog-service
+mvn spring-boot:run -pl user-social-service
+mvn spring-boot:run -pl notification-service
+mvn spring-boot:run -pl api-gateway
+
 
 # 4. Verificar contenedores
 docker compose ps</code></pre>
